@@ -1,0 +1,561 @@
+Can Mathematics Help Define Your Stop Loss and Take Profit? 
+<p><strong>Candle Behavioral Analytics:</strong> A Statistical Framework for Measuring Candle Excursions with MFE and MAE in MetaTrader 5</p>
+<p>By <strong>Eng. Alhassan Ali Mubarak Bahbah</strong></p>
+<p>This article examines how historical candle data can be converted into measurable observations of favorable and adverse price movement. It explains what the Candle Behavioral Analytics Expert 
+Advisor calculates, what its statistical ranges mean, and—equally importantly—what those calculations cannot establish.</p>
+<hr>
+<h2>1. From Personal Estimation to Digital Measurement</h2>
+
+<p>Stop-loss and take-profit distances are often selected using fixed numbers, general indicators, chart-based judgment, or personal experience. Those methods may have a place in a trading plan, but 
+they do not directly answer a narrower statistical question: <em>how far did price move favorably and adversely from the opening price of historical candles?</em></p>
+<p><strong>Candle Behavioral Analytics</strong> approaches that question through numerical measurement. It separates completed candles into bullish and bearish groups, measures the favorable and 
+adverse excursion within each candle, and summarizes the resulting observations using the arithmetic mean, median, and population standard deviation.</p>
+<p>This is not classical chart analysis. The calculations do not identify support or resistance, interpret chart patterns, measure momentum, or independently forecast market direction. They describe 
+the selected historical sample using a defined set of calculations.</p>
+<p>The intended application is to provide historical reference values that a trader may evaluate when calibrating stop-loss and take-profit distances. The calculations do not identify an optimal 
+level, and they do not establish that a chosen distance will be safe or reached.</p>
+
+
+<h2>2. What Candle Behavioral Analytics Analyzes</h2>
+<h3>2.1 The role of the Expert Advisor</h3>
+
+<p>Candle Behavioral Analytics is an analytical Expert Advisor for MetaTrader 5. It reads historical OHLC data for the chart symbol and a selected target timeframe. It does not open, manage, or close 
+trading positions, and it does not issue an independent buy or sell signal.</p>
+<p>Its purpose is to calculate candle-based excursion statistics and display the results in a chart dashboard, together with price projection lines derived from the current target-timeframe candle's 
+opening price.</p>
+
+
+<h3>2.2 Main inputs</h3>
+
+
+<ul>
+    <li><strong>Target timeframe:</strong> the timeframe whose historical candles are analyzed. The default setting is Daily.</li>
+    <li><strong>Calculation window:</strong> a specified number of historical bars or all history currently available to the terminal.</li>
+    <li><strong>Measurement unit:</strong> automatic selection, Points, or Pips.</li>
+    <li><strong>Historical standard-deviation multiplier:</strong> scales the standard-deviation figure displayed in the historical statistics.</li>
+    <li><strong>Prediction standard-deviation multiplier:</strong> controls the width of the calculated statistical reference range.</li>
+    <li><strong>Projection display:</strong> controls whether bullish and bearish projection lines and their labels are shown.</li>
+</ul>
+
+
+<h3>2.3 Main outputs</h3>
+
+
+<ul>
+    <li>The number of analyzed bars and the separate counts of bullish and bearish candles.</li>
+    <li>MFE and MAE statistics for each candle group.</li>
+    <li>Median, arithmetic mean, and scaled standard-deviation values.</li>
+    <li>The lower and upper boundaries of the calculated MFE and MAE reference ranges.</li>
+    <li>Projection lines showing the upper excursion boundaries from the opening price of the current target-timeframe candle.</li>
+</ul>
+<p>The bar count represents the number of bars copied for analysis. Doji bars are included in that total but are not included in either directional group.</p>
+
+
+<h2>3. Core Concepts: MFE and MAE</h2>
+<h3>3.1 MFE — Maximum Favorable Excursion</h3>
+
+<p><strong>Maximum Favorable Excursion (MFE)</strong> is the greatest movement from a candle's opening price in the direction in which that candle ultimately closed.</p>
+<p>Bullish candle — favorable movement is upward</p>
+<p align="center"><strong> MFE bull = (High − Open) / u </strong></p>
+<p>Bearish candle — favorable movement is downward</p>
+<p align="center"><strong> MFE bear = (Open − Low) / u </strong></p>
+
+
+<h3>3.2 MAE — Maximum Adverse Excursion</h3>
+
+<p><strong>Maximum Adverse Excursion (MAE)</strong> is the greatest movement from a candle's opening price against the direction in which that candle ultimately closed.</p>
+<p>Bullish candle — adverse movement is downward</p>
+<p align="center"><strong> MAE bull = (Open − Low) / u </strong></p>
+<p>Bearish candle — adverse movement is upward</p>
+<p align="center"><strong> MAE bear = (High − Open) / u </strong></p>
+<p>Here, <strong>u</strong> represents the price size of one selected measurement unit. The calculation divides the price difference by that unit, so the resulting MFE and MAE values are expressed in 
+Points or Pips—not in raw quoted-price units.</p>
+<p><strong>Important distinction — candle excursion is not a complete trade excursion.</strong></p>
+<p>In this Expert Advisor, MFE and MAE are measured from each historical candle's <strong>Open</strong>, and each candle is assigned to a group only after its Close is known. They are therefore 
+candle-based, retrospective measurements. They are not calculated from a trader's actual entry price, and they do not model a complete trade path.</p>
+<p>The abbreviations used here are <strong>MFE</strong> (Maximum Favorable Excursion) and <strong>MAE</strong> (Maximum Adverse Excursion). MAF is not the term used by this project.</p>
+
+
+<h2>4. Candle Data and Classification</h2>
+<h3>4.1 OHLC data</h3>
+
+
+<ul>
+    <li><strong>Open:</strong> the price at which the candle began.</li>
+    <li><strong>High:</strong> the highest recorded price during the candle.</li>
+    <li><strong>Low:</strong> the lowest recorded price during the candle.</li>
+    <li><strong>Close:</strong> the price at which the candle ended.</li>
+</ul>
+
+
+<h3>4.2 Classification rules</h3>
+
+<p>The Expert Advisor classifies each completed candle by comparing its closing price with its opening price:</p>
+
+
+<ul>
+    <li><strong>Bullish:</strong> Close &gt; Open</li>
+    <li><strong>Bearish:</strong> Close &lt; Open</li>
+    <li><strong>Doji:</strong> Close = Open</li>
+</ul>
+<p>Only completed candles are included. The currently forming candle is excluded from the statistical sample. Doji candles are excluded from both directional groups, so the bullish and bearish counts 
+may sum to less than the total number of analyzed bars.</p>
+<p><strong>Retrospective classification matters.</strong></p>
+<p>A candle can be labelled bullish or bearish only after it has closed. Consequently, the bullish statistics describe the historical excursions of candles that eventually closed above their opens; 
+the bearish statistics describe candles that eventually closed below their opens. At the opening of a new candle, its eventual classification is not yet known. These groups must not be treated as live 
+signals or as information that was available at the candle's open.</p>
+
+
+<h2>5. Measurement Units: Points and Pips</h2>
+
+<p>The Expert Advisor converts price differences into a selected display unit using the current chart symbol's point size and number of decimal digits. A Point is the instrument's quoted minimum price 
+increment exposed by the platform; a Pip is a market convention whose size depends on the instrument and quoting convention.</p>
+<p><strong>Measurement settings in the current EA:</strong></p>
+
+
+<ul>
+    <div class="table-wrapper">
+        <table cellspacing="0" cellpadding="2" width="100%" class="standart">
+            <thead>
+                <tr>
+                    <th style="text-align:center;"><span>Setting</span><br></th>
+                    <th style="text-align:center;"><span>Current calculation behavior</span><br></th>
+                </tr>
+            </thead>
+
+
+            <tbody>
+                <tr>
+                    <td>
+                    <p style="text-align:center;"><strong>Automatic</strong></p>
+                    <p style="text-align:center;"><br></p></td>
+                    <td style="text-align:center;">
+                    <p style="text-align:left;"><span>For symbols quoted with three or five decimal digits, the EA uses ten Points as one displayed Pip. For other digit counts, it uses Points.</span></p><br></td>
+                </tr>
+
+
+                <tr>
+                    <td style="text-align:center;"><span><strong>Points</strong></span><br></td>
+                    <td style="text-align:center;">
+                    <p style="text-align:left;"><span>One unit is the symbol's Point size.</span></p><br></td>
+                </tr>
+
+
+                <tr>
+                    <td style="text-align:center;"><strong>Pips</strong><br></td>
+                    <td style="text-align:left;"><span>For three- and five-digit symbols, one unit is ten Points. For other digit counts, the current code uses one Point while retaining the “Pips” 
+                    label. That may coincide with a conventional Pip on some two- or four-digit FX quotes, but it is not a universal Pip definition for every instrument.</span><br></td>
+                </tr>
+            </tbody>
+        </table>
+    </div><br> 
+</ul>
+<p><strong>Unit-setting limitation in the current EA version.</strong></p>
+<p>The code infers the Pips conversion from the number of decimal digits; it does not verify the instrument class or the broker's Pip convention. On conventional two- or four-digit FX quotes, one 
+Point may equal one Pip. On gold, indices, and other non-FX instruments, the displayed “Pips” label may not represent a universally defined Pip. Verify the symbol's actual convention and prefer 
+Automatic or Points when a Pip definition is ambiguous.</p>
+<p>Unit consistency is essential. A distance calculated in Points must be interpreted as Points, and a distance calculated in Pips must be converted using the correct price size before it is added to 
+or subtracted from an entry price.</p>
+
+
+<h2>6. Statistical Measures</h2>
+<h3>6.1 Arithmetic Mean</h3>
+
+<p>The <strong>arithmetic mean</strong> is the sum of all observations divided by the number of observations.</p>
+<p align="center"><strong> μ = (x₁ + x₂ + ⋯ + xₙ) / n = (Σxᵢ) / n </strong></p>
+<p>The mean is the central value used in the EA's reference-range calculation. It describes the average observed excursion, but it can be pulled upward by a small number of unusually large 
+observations.</p>
+
+
+<h3>6.2 Median</h3>
+
+<p>The <strong>median</strong> is the middle observation after the values have been sorted. With an even number of observations, it is the arithmetic mean of the two central values.</p>
+<p align="center"><strong> Odd n: Median = the middle sorted observation </strong></p>
+<p align="center"><strong> Even n: Median = (the two middle observations) / 2 </strong></p>
+<p>The median is less sensitive to extreme observations than the arithmetic mean. A noticeable difference between the mean and median can indicate that a relatively small number of candles have 
+unusually large excursions.</p>
+
+
+<h3>6.3 Population Standard Deviation</h3>
+
+<p><strong>Population standard deviation</strong> measures the dispersion of the observations around their mean. The implementation divides by the number of observations, <em>n</em>, rather than <em>n 
+− 1</em>.</p>
+<p align="center"><strong> σ = √[ Σ(xᵢ − μ)² / n ] </strong></p>
+
+
+<ul>
+    <li>A smaller standard deviation indicates that the observations are more concentrated around the mean.</li>
+    <li>A larger standard deviation indicates greater variation between candles.</li>
+    <li>Standard deviation measures dispersion; it does not indicate whether the market will move up or down.</li>
+</ul>
+<p><strong>Implementation detail:</strong> the historical dashboard displays the raw population standard deviation multiplied by the historical SD multiplier. If that multiplier is 1.00, the displayed 
+value equals the raw standard deviation. If it is not 1.00, the displayed figure is scaled and should not be described as the unadjusted standard deviation.</p>
+
+
+<h2>7. Building the Statistical Reference Range</h2>
+<h3>7.1 Calculation</h3>
+
+<p>The EA builds a range around the historical mean by adding and subtracting the raw population standard deviation multiplied by a user-selected factor <strong>k</strong>. Because MFE and MAE are 
+non-negative distances, the lower boundary is limited to zero.</p>
+<p><strong>Lower and upper boundaries:</strong></p>
+<p align="center"><strong> Lower = max(0, μ − kσ) </strong></p>
+<p align="center"><strong> Upper = μ + kσ </strong></p>
+<p>The range is therefore a mean-centred dispersion band, clipped at zero where necessary. In the dashboard, the standalone value shown before the bracket is the <strong>upper boundary</strong> (μ + 
+kσ); it is not a second mean or an independently estimated expected value.</p>
+
+
+<h3>7.2 Two different standard-deviation multipliers</h3>
+
+
+<ul>
+    <li>The <strong>historical SD multiplier</strong> scales the SD figure displayed beside the historical mean and median.</li>
+    <li>The <strong>prediction SD multiplier</strong> determines the width of the reference range around the mean.</li>
+    <li>The reference-range calculation uses the raw population standard deviation, not the already scaled historical display figure.</li>
+</ul>
+<p>The multipliers should be non-negative. The current EA code does not enforce a non-negative input, so a negative setting can produce an inverted or misleading range. Use zero or positive values 
+until input validation is added.</p>
+
+
+<h3>7.3 Theoretical normal-distribution coverage</h3>
+
+<p>The following percentages are familiar theoretical central coverage values for a symmetric, untruncated normal distribution:</p>
+<p><strong>Theoretical central coverage under a normal distribution:</strong></p>
+<p><span> </span></p>
+
+
+<div class="table-wrapper">
+    <table cellspacing="0" cellpadding="2" width="100%" class="standart">
+        <thead>
+            <tr>
+                <th style="text-align:center;">Central interval</th>
+                <th style="text-align:center;">Theoretical coverage under normality</th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+            <tr>
+                <td>±0.5σ<br></td>
+                <td>38.29%</td>
+            </tr>
+
+
+            <tr>
+                <td>±1σ</td>
+                <td>68.27%</td>
+            </tr>
+
+
+            <tr>
+                <td>±1.5σ</td>
+                <td>&nbsp;86.64%</td>
+            </tr>
+
+
+            <tr>
+                <td>±2σ</td>
+                <td>95.45%</td>
+            </tr>
+
+
+            <tr>
+                <td>±2.5σ</td>
+                <td>&nbsp;98.76%</td>
+            </tr>
+
+
+            <tr>
+                <td>±3σ</td>
+                <td>99.73%</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<blockquote>
+    <p><strong> IMPORTANT STATISTICAL WARNING </strong></p>
+    <p>These percentages are theoretical values only; they are not measured hit probabilities produced by the EA.</p>
+    <p>The table assumes a normal distribution and a symmetric interval around the mean. The EA does not test whether the market-excursion data are normally distributed, and it clips a negative lower 
+    boundary to zero. Market excursions may be skewed, heavy-tailed, dependent, and time-varying. Therefore, the theoretical percentages must not be presented as guaranteed coverage, a formal 
+    confidence interval, or the probability that a future candle will remain inside the displayed range.</p>
+</blockquote>
+
+
+<h3>7.4 Practical interpretation</h3>
+
+<p>A trader may treat the calculated lower and upper boundaries as candidate distances for further evaluation. Choosing a value inside the band does not make that value optimal, safe, or statistically 
+guaranteed. The choice still depends on the trading method, actual entry location, account risk, execution costs, and out-of-sample testing.</p>
+
+
+<h2>8. Using MAE for Stop-Loss Calibration</h2>
+<h3>8.1 Sell trade</h3>
+
+<p>For a sell trade, an adverse move is upward. The corresponding historical candle group in this framework is the bearish group, and the relevant reference statistic is bearish MAE.</p>
+<p align="center"><strong> Sell Stop Loss = Entry Price + (Selected Bearish MAE × u) </strong></p>
+<p>The multiplication by <strong>u</strong> converts the selected distance from Points or Pips back into quoted-price units before it is added to the entry price.</p>
+
+
+<h3>8.2 Buy trade</h3>
+
+<p>For a buy trade, an adverse move is downward. The corresponding historical candle group is the bullish group, and the relevant reference statistic is bullish MAE.</p>
+<p align="center"><strong> Buy Stop Loss = Entry Price − (Selected Bullish MAE × u) </strong></p>
+<p>The selected distance may be compared with the historical median, mean, and calculated reference range. It must then be assessed against the position size and the maximum monetary loss permitted by 
+the trading plan.</p>
+
+
+<h3>8.3 What the MAE range can and cannot do</h3>
+
+<p>The MAE range can provide historical context for the size of adverse candle movement. It does not establish a safe stop distance. A future candle can exceed the historical upper boundary, and the 
+statistics are not specific to a trade entered at an arbitrary time or price.</p>
+<p>Spread, commission, slippage, liquidity, and any required execution buffer must be considered separately. They are not automatically added to the excursion values calculated by the EA.</p>
+
+
+<h2>9. Using MFE for Take-Profit Calibration</h2>
+<h3>9.1 Buy trade</h3>
+
+<p>For a buy trade, favorable movement is upward. The corresponding historical candle group is the bullish group, and the relevant reference statistic is bullish MFE.</p>
+<p align="center"><strong> Buy Take Profit = Entry Price + (Selected Bullish MFE × u) </strong></p>
+
+
+<h3>9.2 Sell trade</h3>
+
+<p>For a sell trade, favorable movement is downward. The corresponding historical candle group is the bearish group, and the relevant reference statistic is bearish MFE.</p>
+<p align="center"><strong> Sell Take Profit = Entry Price − (Selected Bearish MFE × u) </strong></p>
+
+
+<h3>9.3 Practical interpretation</h3>
+
+<p>The lower part of the range may be examined as a more conservative candidate distance, the mean as a central historical reference, and the upper part as a more ambitious candidate. These 
+descriptions are comparative only; they do not establish the probability of reaching a target.</p>
+<p>A target beyond the historical upper boundary is not mathematically impossible. It simply lies outside the selected reference band and requires separate justification and testing.</p>
+
+
+<h2>10. Combining MAE and MFE</h2>
+
+<p>MAE and MFE can be considered together when comparing a candidate stop distance with a candidate target distance. Both distances must use the same measurement unit.</p>
+<p><strong>Reward-to-risk distance ratio:</strong></p>
+<p align="center"><strong> Reward-to-Risk = Selected MFE / Selected MAE </strong></p>
+<p>The reciprocal expression is the risk-to-reward distance ratio: selected MAE divided by selected MFE. Stating the order explicitly avoids ambiguity in the phrase “risk/reward ratio”.</p>
+
+
+<ul>
+    <li>A larger selected MAE relative to selected MFE produces a less favorable distance relationship.</li>
+    <li>A larger selected MFE relative to selected MAE produces a more favorable nominal distance relationship.</li>
+    <li>The ratio is undefined when the selected MAE is zero.</li>
+</ul>
+<p><strong>A distance ratio is not an expectancy calculation.</strong></p>
+<p>The ratio does not include the probability of reaching the target, the probability of hitting the stop first, the frequency of trades, or transaction costs. The EA measures each candle's high and 
+low but does not reconstruct the order in which those prices occurred. If both a stop and target lie within the same candle's high-low range, OHLC data alone cannot establish which level was reached 
+first.</p>
+
+
+<h2>11. Reading the GBPJPY Example</h2>
+
+<p><img width="1080" height="406" src="https://c.mql5.com/6/1049/GBPJPY__1.jpg" loading="lazy" title="GBPJPY chart" alt="GBPJPY chart" style="vertical-align:middle;"><br></p>
+<p><span> </span>Figure 1. Candle Behavioral Analytics — GBPJPY, Daily timeframe.</p>
+<p>The supplied example describes a Daily analysis of 2,889 bars, using Pips as the displayed unit. It reports 1,577 bullish candles and 1,312 bearish candles. The historical columns are presented in 
+the order <strong>Median / Mean / Standard Deviation</strong>.</p>
+
+
+<div class="table-wrapper">
+    <table cellspacing="0" cellpadding="2" width="100%" class="standart">
+        <thead>
+            <tr>
+                <th><span>Direction</span><br></th>
+                <th><span>MFE: Median / Mean / SD</span><br></th>
+                <th><span>MAE: Median / Mean / SD</span><br></th>
+                <th><span>Calculated MFE range</span><br></th>
+                <th><span>Calculated MAE range</span><br></th>
+            </tr>
+        </thead>
+
+
+        <tbody>
+            <tr>
+                <td><span>Bullish</span><br><span>(1,577 candles)</span><br></td>
+                <td><span>94.7 / 112.5 / 70.7 pips</span><br></td>
+                <td><span>26.3 / 35.3 / 33.6 pips</span><br></td>
+                <td><span>41.8 – 183.2 pips</span><br></td>
+                <td><span>1.7 – 68.9 pips</span><br></td>
+            </tr>
+
+
+            <tr>
+                <td><span>Bearish</span><br><span>(1,312 candles)</span><br></td>
+                <td><span>98.9 / 123.5 / 107.6 pips</span><br></td>
+                <td><span>32.4 / 40.4 / 35.6 pips</span><br></td>
+                <td><span>15.8 – 231.1 pips</span><br></td>
+                <td><span>4.8 – 76.0 pips</span><br></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<p>The listed boundaries are numerically consistent with a mean ± one raw standard deviation, with the lower endpoint limited to zero, when the prediction multiplier is 1.00. Because the historical SD 
+displayed in the dashboard can be scaled independently, confirm that the historical SD multiplier is also 1.00 before treating the table's SD column as the raw standard deviation. The exact values 
+should be checked against the final MetaTrader 5 screenshot and the broker's GBPJPY price history before publication.</p>
+
+
+<h3>11.1 Interpreting the bullish row</h3>
+
+<p>The bullish row summarizes candles that closed above their opening prices. In the proposed buy-side application, its MAE statistics are examined as historical context for adverse movement, while 
+its MFE statistics are examined as historical context for favorable movement. The row does not imply that a future candle will be bullish.</p>
+
+
+<h3>11.2 Interpreting the bearish row</h3>
+
+<p>The bearish row summarizes candles that closed below their opening prices. In the proposed sell-side application, its MAE statistics are examined as historical context for adverse movement, while 
+its MFE statistics are examined as historical context for favorable movement. The row does not imply that a future candle will be bearish.</p>
+<p>The dashboard displays numerical ranges. The chart projection lines, however, are drawn at the <strong>upper</strong> MFE and MAE boundaries from the opening price of the current target-timeframe 
+candle; the lines do not draw both edges of each statistical range. The dashboard's bracketed values provide the lower and upper boundaries.</p>
+
+
+<h2>12. Buy and Sell Applications</h2>
+<h3>12.1 Buy-side workflow</h3>
+
+
+<ol>
+    <li>Review the historical bullish MAE distribution as a reference for adverse candle movement.</li>
+    <li>Review bullish MFE as a reference for favorable candle movement.</li>
+    <li>Select candidate stop and target distances in a consistent unit.</li>
+    <li>Convert each selected distance into quoted-price units before calculating the stop-loss and take-profit prices.</li>
+    <li>Check the monetary risk, position size, execution costs, and strategy-specific entry conditions.</li>
+    <li>Test the complete trade rule on data that was not used to calculate the reference statistics.</li>
+</ol>
+<p align="center"><strong> Buy Stop Loss = Entry − (Bullish MAE × u) </strong></p>
+<p align="center"><strong> Buy Take Profit = Entry + (Bullish MFE × u) </strong></p>
+
+
+<h3>12.2 Sell-side workflow</h3>
+
+
+<ol>
+    <li>Review the historical bearish MAE distribution as a reference for adverse candle movement.</li>
+    <li>Review bearish MFE as a reference for favorable candle movement.</li>
+    <li>Select candidate stop and target distances in a consistent unit.</li>
+    <li>Convert each selected distance into quoted-price units before calculating the stop-loss and take-profit prices.</li>
+    <li>Check the monetary risk, position size, execution costs, and strategy-specific entry conditions.</li>
+    <li>Test the complete trade rule on data that was not used to calculate the reference statistics.</li>
+</ol>
+<p align="center"><strong> Sell Stop Loss = Entry + (Bearish MAE × u) </strong></p>
+<p align="center"><strong> Sell Take Profit = Entry − (Bearish MFE × u) </strong></p>
+<p><strong>Reference mapping:</strong></p>
+
+
+<ul>
+    <li><strong>Buy:</strong> Examine bullish candles; use bullish MAE as the stop-loss reference and bullish MFE as the take-profit reference.</li>
+    <li><strong>Sell:</strong> Examine bearish candles; use bearish MAE as the stop-loss reference and bearish MFE as the take-profit reference.</li>
+</ul>
+<p>This mapping reproduces the project's proposed analytical framework. Because the candle group is determined retrospectively by the candle's close, the mapping is a historical comparison—not a 
+real-time classification rule for a new candle.</p>
+
+
+<h2>13. Additional Applications</h2>
+<h3>13.1 Stop-loss calibration</h3>
+
+<p>Compare the median, mean, and MAE reference range to examine candidate stop distances. The final distance must also satisfy the account's monetary risk limit and the trading method's rules.</p>
+
+
+<h3>13.2 Take-profit calibration</h3>
+
+<p>Compare the MFE median, mean, and reference range when examining candidate target distances. A historical excursion range is a descriptive reference, not evidence that a target will be reached.</p>
+
+
+<h3>13.3 Symbol comparison</h3>
+
+<p>Compare the scale and dispersion of MFE and MAE across symbols, recalculating each symbol independently. The values should not be transferred directly between instruments with different price 
+scales, volatility characteristics, or trading conditions.</p>
+
+
+<h3>13.4 Timeframe comparison</h3>
+
+<p>Study how the same symbol's candle excursions differ across timeframes. A Daily statistic should not be copied into an hourly method without recalculating and testing it on the relevant timeframe.</p>
+
+
+<h3>13.5 Scenario analysis</h3>
+
+<p>Compare conservative, central, and expanded candidate distances, then evaluate their effect on a complete strategy's historical outcomes. This analysis should include the sequence of stop and 
+target events and realistic trading costs.</p>
+
+
+<h2>14. Validation and Testing</h2>
+<h3>14.1 Separate estimation from evaluation</h3>
+
+<p>Use an earlier historical period to calculate the reference statistics, then evaluate the chosen distances on a later, unseen period. Measuring performance on the same observations used to build 
+the range does not establish out-of-sample usefulness.</p>
+
+
+<h3>14.2 Measures worth evaluating</h3>
+
+
+<ul>
+    <li>The empirical percentage of test-period excursions falling inside the selected range.</li>
+    <li>The average and distribution of excursions beyond the range.</li>
+    <li>The percentage of trades in which the stop is reached.</li>
+    <li>The percentage of trades in which the target is reached.</li>
+    <li>Which level is reached first when both stop and target are touched within one candle.</li>
+    <li>Net results after spread, commission, slippage, and other relevant costs.</li>
+    <li>Stability across different historical periods and market conditions.</li>
+</ul>
+<p>Because OHLC data does not reveal the full intrabar sequence, a realistic stop-first or target-first test may require lower-timeframe or tick data. The validation method must not silently assume 
+the favorable order when both levels lie inside the same candle.</p>
+<p>The purpose of testing is to measure robustness and identify failure conditions—not to turn historical statistics into certainty.</p>
+
+
+<h2>15. Scientific and Practical Limitations</h2>
+
+
+<ul>
+    <li>The calculations use OHLC candle data and do not reconstruct the complete intrabar price sequence.</li>
+    <li>MFE and MAE are measured from candle Open, not from an actual trade entry price.</li>
+    <li>Bullish and bearish groups are defined using the completed candle's Close, so their classification is retrospective.</li>
+    <li>The EA does not model a complete trading strategy or determine which of a stop and target would be reached first.</li>
+    <li>Spread, commission, slippage, liquidity, and execution effects are not automatically included in the excursion values.</li>
+    <li>The EA does not automatically create a training and testing split.</li>
+    <li>All selected historical observations are treated equally; the calculation does not apply recency weighting or a market-regime model.</li>
+    <li>Outliers can materially affect the arithmetic mean and standard deviation.</li>
+    <li>Doji candles are excluded from the bullish and bearish groups.</li>
+    <li>The code does not enforce a minimum sample size or validate that standard-deviation multipliers are non-negative.</li>
+    <li>The Pips conversion is inferred from decimal digits rather than verified against the instrument class or broker-specific Pip convention; this can make the Pips label ambiguous on non-FX 
+    symbols.</li>
+    <li>The reference range is descriptive and statistical; it is not a guaranteed forecast or a formal prediction interval.</li>
+    <li>Results depend on the symbol, timeframe, broker history, sample window, unit convention, and selected parameters.</li>
+</ul>
+
+
+<h2>16. Conclusion</h2>
+
+<p>Candle Behavioral Analytics converts historical candle ranges into numerical observations. Candle-based MFE describes movement in the eventual closing direction, while candle-based MAE describes 
+movement against it. The arithmetic mean summarizes the average, the median provides a less outlier-sensitive central measure, and population standard deviation describes dispersion.</p>
+<p>The resulting range can serve as a statistical reference when examining candidate stop-loss and take-profit distances. Its usefulness must be established through out-of-sample testing of a complete 
+trading method, with realistic execution costs and the order of intrabar events taken into account.</p>
+<p>The central idea is simple: measure the selected historical data, understand exactly what the measurements represent, and test any trading application independently. Statistics can improve the 
+discipline of measurement; they do not remove market uncertainty.</p>
+
+
+<h2><span style="background-color:rgb(255, 246, 200);">17. Disclaimer</span></h2>
+
+
+<blockquote>
+    <p><strong><span style="background-color:rgb(255, 246, 200);"> DISCLAIMER </span></strong></p>
+    <p><span style="background-color:rgb(255, 246, 200);">This article and the associated Candle Behavioral Analytics Expert Advisor provide historical candle measurements and statistical analysis for 
+    educational and research purposes only. They do not constitute financial advice, investment advice, a recommendation to buy or sell any financial instrument, or an independent trading signal.</span></p>
+    <p><span style="background-color:rgb(255, 246, 200);">Historical MFE, MAE, averages, standard deviations, and calculated reference ranges do not guarantee future market behavior, the safety of a 
+    stop-loss level, or the achievement of a take-profit target. The calculations do not model every execution condition or the complete sequence of prices inside a candle.</span></p>
+    <p><span style="background-color:rgb(255, 246, 200);">Trading financial markets involves substantial risk and may result in the loss of capital. Each user is solely responsible for independently 
+    validating the methodology, verifying symbol-specific units, considering spread, commission, slippage and liquidity, determining appropriate position size, and making all trading decisions. Past 
+    observations are not a promise or guarantee of future results.</span></p>
+</blockquote>
+<hr>
+<p><strong>Candle Behavioral Analytics</strong></p>
+<p>Developed by <strong>Eng. Alhassan Ali Mubarak Bahbah</strong></p>
+<p>#Risk Management, metatrader, stop loss, Statistical Analysis, take profit, Candle Analysis, MFE, MAE</p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
+<p><br></p>
