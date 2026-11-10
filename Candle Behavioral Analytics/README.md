@@ -1,5 +1,7 @@
 # Candle Behavioral Analytics
 
+**تاريخ المشروع:** 9 نوفمبر 2026
+
 ## نظرة عامة
 
 **Candle Behavioral Analytics** هو Expert Advisor (EA) لمنصة MetaTrader 5 مكتوب بلغة MQL5. لا يفتح أو يغلق صفقات، ولا يقدم إشارة تداول مستقلة؛ وظيفته تحليل السلوك التاريخي للشموع على رمز وإطار زمني محددين، ثم عرض نطاقات الحركة المتوقعة للشمعة الحالية بصريًا على الرسم البياني.
@@ -203,7 +205,7 @@ PredictionMax   = Mean + (RawSD × InpPredSDMultiplier)
 
 ## التثبيت
 
-1. انسخ الملف `Experts/Candle Behavioral Analytics.mq5` إلى مجلد `MQL5/Experts` في تثبيت MetaTrader 5.
+1. انسخ الملف `Expert/Candle Behavioral Analytics.mq5` إلى مجلد `MQL5/Experts` في تثبيت MetaTrader 5.
 2. افتح الملف في MetaEditor واضغط **Compile**.
 3. أرفق الإكسبرت بالشارت المطلوب واضبط المدخلات.
 4. تأكد من توفر التاريخ الكافي للإطار الزمني المختار.
